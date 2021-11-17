@@ -20,6 +20,7 @@ jobs:
         if: ${{ github.event_name != 'push' }}"
         run: npm install
       - name: lint
+        if: ${{ github.event_name != 'push' }}"
         run: npm run eslint
       - name: build
         if: ${{ github.event_name != 'push' }}"
