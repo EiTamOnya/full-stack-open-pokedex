@@ -36,7 +36,7 @@ jobs:
           start: npm run start-prod
           wait-on: http://localhost:5000
       - name: deploy to heroku
-        if: "!contains(github.event.head_commit.message, '#skip') && github.event_name == 'push' && 1 > 2"
+        if: "!contains(github.event.head_commit.message, '#skip') && github.event_name == 'push'"
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_TOKEN}}
@@ -56,6 +56,18 @@ jobs:
           WITH_V: true
           DEFAULT_BUMP: patch
       - name: slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              attachments: [{
+                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                text: `version: ${process.env.TAG}\n${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+              }]
+            }
         env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           TAG: ${{ steps.push-tag.outputs.tag }}
-        run: echo $TAG
+        if: always() # Pick up events even if the job fails or is canceled.
