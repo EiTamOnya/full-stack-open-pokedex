@@ -44,7 +44,7 @@ jobs:
           heroku_email: 'pashov@ymail.com'
           healthcheck: 'https://pokedex-pp.herokuapp.com/health'
           checkstring: 'ok'
-          delay: 5
+          delay: 6
           rollbackonhealthcheckfailed: true
       - uses: actions/checkout@v2
       - name: Bump version and push tag
